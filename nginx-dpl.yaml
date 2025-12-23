@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-dpl
+  labels:
+    prj: timeapp
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 2
+  selector:
+    matchLabels:
+      prj: timeapp
+      part: ws
+  template:
+    metadata:
+      labels:
+        prj: timeapp
+        part: ws
+    spec:
+      containers:
+      - name: ws
+        image: nginx:alpine
+        ports:
+          - containerPort: 80
+        volumeMounts:
+        - name: nginx-conf-vl
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: conf.d/default.conf
+      volumes:
+      - name: nginx-conf-vl
+        configMap:
+          name: nginx-conf

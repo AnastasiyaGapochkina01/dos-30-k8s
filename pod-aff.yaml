@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-affinity-pod-0
+  labels:
+    prj: ws
+spec:
+  containers:
+    - name: webserver-1
+      image: nginx:alpine
+      ports:
+        - containerPort: 80
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: prj
+            operator: In
+            values:
+            - ws
+        topologyKey: "kubernetes.io/hostname"
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-affinity-pod-1
+  labels:
+    prj: ws
+spec:
+  containers:
+    - name: webserver-1
+      image: nginx:alpine
+      ports:
+        - containerPort: 80
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: prj
+            operator: In
+            values:
+            - ws
+        topologyKey: "kubernetes.io/hostname"
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-affinity-pod-2
+  labels:
+    prj: ws
+spec:
+  containers:
+    - name: webserver-1
+      image: nginx:alpine
+      ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-affinity-pod-3
+  labels:
+    prj: ws
+  namespace: demo
+spec:
+  containers:
+    - name: webserver-1
+      image: nginx:alpine
+      ports:
+        - containerPort: 80

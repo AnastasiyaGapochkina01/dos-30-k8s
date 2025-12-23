@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: timeapp-rs
+  labels:
+    prj: timeapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      prj: timeapp
+      part: back
+  template:
+    metadata:
+      labels:
+        prj: timeapp
+        part: back
+    spec:
+      containers:
+      - name: timeapp-01
+        image: anestesia01/k8s-demo:time-app-2.0.0
+        ports:
+          - containerPort: 8000

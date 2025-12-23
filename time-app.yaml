@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: timeapp-pod
+  labels:
+    prj: timeapp
+  namespace: demo
+spec:
+  containers:
+    - name: timeapp-01
+      image: anestesia01/k8s-demo:time-app-1.0.0
+      ports:
+        - containerPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timeapp-svc
+  labels:
+    prj: timeapp
+    part: service
+  namespace: demo
+spec:
+  selector:
+    prj: timeapp
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timeapp-dpl
+  labels:
+    prj: timeapp
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 2
+  selector:
+    matchLabels:
+      prj: timeapp
+      part: back
+  template:
+    metadata:
+      labels:
+        prj: timeapp
+        part: back
+      annotations:
+        kubernetes.io/change-cause: "task53: add db connect"
+    spec:
+      containers:
+      - name: timeapp-01
+        image: anestesia01/k8s-demo:time-app-2.0.0
+        ports:
+          - containerPort: 8000
