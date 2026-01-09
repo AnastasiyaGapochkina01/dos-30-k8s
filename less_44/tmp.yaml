@@ -1,0 +1,116 @@
+---
+# Source: metrics-demo/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-secret
+  namespace: metrics-dev
+type: Opaque
+stringData:
+  DB_USER: metrics
+  DB_PASSWORD: secretpass
+  DB_NAME: metricsdb
+---
+# Source: metrics-demo/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg-svc
+  namespace: metrics-dev
+spec:
+  selector:
+    part: db
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+# Source: metrics-demo/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-svc
+  namespace: metrics-dev
+spec:
+  selector:
+    part: db
+  ports:
+  - port: 5000
+    targetPort: 5000
+---
+# Source: metrics-demo/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-dpl
+  namespace: metrics-dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      part: backend
+  template:
+    metadata:
+      labels:
+        part: backend
+    spec:
+      containers:
+        - name: app
+          image: anestesia01/k8s-demo:metrics-demo-1.0.0
+          ports:
+            - containerPort: 5000
+          env:
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_PASSWORD
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_NAME
+          - name: DB_HOST
+            value: pg-svc
+---
+# Source: metrics-demo/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pg-statefulset
+  namespace: metrics-dev
+spec:
+  selector:
+    matchLabels:
+      part: db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        part: db
+    spec:
+      containers:
+        - name: postgres-1
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_NAME
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_PASSWORD

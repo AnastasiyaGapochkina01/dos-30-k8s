@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      part: db
+  template:
+    metadata:
+      labels:
+        part: db
+    spec:
+      containers:
+        - name: postgres-1
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_NAME
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: pg-secret
+                key: DB_PASSWORD
+          volumeMounts:
+          - name: pg-data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pg-data
+        emptyDir: {}

@@ -1,0 +1,21 @@
+namespace: metrics-demo-ns
+
+db:
+  user: metrics
+  passwd: secretpass
+  dbname: metricsdb
+  image: postgres
+  tag: 16
+  #port: 5432
+  service: pg-svc
+  secretName: pg-secret
+  name: pg-statefulset
+
+api:
+  image: anestesia01/k8s-demo:metrics-demo-1.0.0
+  replicas: 2
+  port: 5000
+  service: app-svc
+  name: app-dpl
+
+

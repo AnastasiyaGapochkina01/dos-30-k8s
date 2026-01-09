@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.db.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      part: db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        part: db
+    spec:
+      containers:
+        - name: postgres-1
+          image: {{ .Values.db.image }}:{{ .Values.db.tag }}
+          ports:
+            - containerPort: {{ .Values.db.port | default "5432" }}
+          env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.db.secretName }}
+                key: DB_NAME
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.db.secretName }}
+                key: DB_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.db.secretName }}
+                key: DB_PASSWORD
+          
