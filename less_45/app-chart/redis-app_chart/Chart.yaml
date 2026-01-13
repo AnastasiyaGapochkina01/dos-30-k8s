@@ -1,0 +1,15 @@
+apiVersion: v2
+name: redis-app
+description: A Helm chart for app with redis in Kubernetes
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+
+dependencies:
+  - name: redis
+    version: "2.2.1"
+    repository: "https://groundhog2k.github.io/helm-charts/"
+    condition: redis.enabled
+    haMode.enabled: false
+    redis.fullname: redis-app
+

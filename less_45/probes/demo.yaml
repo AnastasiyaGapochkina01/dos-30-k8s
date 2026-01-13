@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-probes
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+        - name: demo-1
+          image: anestesia01/k8s-demo:probes-demo
+          ports:
+            - containerPort: 8080
+            - containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - worker
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3 
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            failureThreshold: 3

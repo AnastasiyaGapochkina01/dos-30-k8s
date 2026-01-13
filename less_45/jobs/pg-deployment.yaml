@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      part: db
+  template:
+    metadata:
+      labels:
+        part: db
+    spec:
+      containers:
+        - name: postgres-1
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+          - name: POSTGRES_DB
+            value: app
+          - name: POSTGRES_USER
+            value: appuser
+          - name: POSTGRES_PASSWORD
+            value: appuserpass
+          volumeMounts:
+          - name: pg-data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pg-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg-service
+spec:
+  selector:
+    part: db
+  ports:
+  - port: 5432
+    targetPort: 5432

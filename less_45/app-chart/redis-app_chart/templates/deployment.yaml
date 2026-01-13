@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "app-labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "app-selector-labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app-selector-labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: flask
+              containerPort: 5000
+              protocol: TCP
+          env:
+            - name: REDIS_HOST
+              value: {{ .Values.env.REDIS_HOST }}
+  

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-backup
+spec:
+  schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backuper
+              image: anestesia01/k8s-demo:k8s-demo-job_backuper-1.0
+              env:
+                - name: PG_HOST
+                  value: pg-service
+                - name: PG_USER
+                  value: appuser
+                - name: PGPASSWORD
+                  value: appuserpass
+                - name: PG_DATABASE
+                  value: app
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              hostPath:
+                path: /mnt/pg-backup
+                type: DirectoryOrCreate

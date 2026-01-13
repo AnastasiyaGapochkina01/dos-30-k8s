@@ -1,0 +1,16 @@
+replicaCount: 2
+image:
+  repository: "anestesia01/k8s-demo"
+  tag: "redis-app_v1"
+
+service:
+  type: ClusterIP
+  port: 5000
+
+redis:
+  enabled: true
+  
+
+env:
+  REDIS_HOST: "app-1-redis"
+  REDIS_PORT: 6379
