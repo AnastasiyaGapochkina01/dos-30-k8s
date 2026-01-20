@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mariadb:11.4
+    container_name: downhill_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: downhill_diary
+      MYSQL_USER: downhill_user
+      MYSQL_PASSWORD: downhill_pass
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: downhill_backend
+    restart: unless-stopped
+    environment:
+      DB_USER: downhill_user
+      DB_PASSWORD: downhill_pass
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: downhill_diary
+    depends_on:
+      - db
+    ports:
+      - 8000:8000
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/index.html:/usr/share/nginx/html/index.html
+      - ./frontend/style.css:/usr/share/nginx/html/style.css
+      - ./frontend/profile.html:/usr/share/nginx/html/profile.html
+    depends_on:
+      - backend
+  
+volumes:
+  db_data:

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  selector:
+    part: frontend
+  ports:
+    - port: {{ .Values.services.frontend.port }}
+      targetPort: {{ .Values.services.frontend.port }}
+      protocol: TCP  
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  selector:
+    part: backend
+  ports:
+    - port: {{ .Values.services.backend.port }}
+      targetPort: {{ .Values.services.backend.port }}
+      protocol: TCP  
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  selector:
+    part: db
+  ports:
+    - port: {{ .Values.services.db.port }}
+      targetPort: {{ .Values.services.db.port }}
+      protocol: TCP  

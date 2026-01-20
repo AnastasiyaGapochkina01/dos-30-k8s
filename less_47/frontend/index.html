@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Downhill Diary — Night City Trails</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="noise-overlay"></div>
+  <header class="hero">
+    <div class="hero-left">
+      <div class="badge">Downhill Rider</div>
+      <h1 class="glitch" data-text="ANESTESIA">ANESTESIA</h1>
+      <p class="subtitle">
+        Детейлер. Райдер. Микро-зло
+      </p>
+      <div class="hero-meta">
+        <span>#downhill</span>
+        <span>#night_city_trails</span>
+        <span>#cyberpunk</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="rider-card">
+        <div class="avatar-ring">
+          <div class="avatar">
+            <!-- положи сюда свою картинку, если надо, через background-image в CSS -->
+          </div>
+        </div>
+        <div class="rider-info">
+          <h2>Профиль райдера</h2>
+          <ul>
+            <li>Локация: Ростов-на-Дону</li>
+            <li>Стиль: агрессивный downhill / dh</li>
+            <li>Фича: хулиганю в городе</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="latest-note">
+      <div class="section-header">
+        <h2>Последняя запись</h2>
+        <span class="chip chip-online" id="backend-status">checking…</span>
+      </div>
+      <div id="latest-note-body" class="card note-card loading">
+        <p>Загружаем свежий спуск…</p>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button class="cp-btn" onclick="window.location.href='/profile'">
+        <span>Профиль райдера</span>
+        <span class="btn-label">external</span>
+      </button>
+      <button class="cp-btn" onclick="window.location.href='#latest-note-body'">
+        <span>К последней заметке</span>
+        <span class="btn-label">scroll</span>
+      </button>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>Downhill diary · Cyberpunk edition</span>
+    <span>TG: <code>anestesia01</code> · домашний трек: <code>Парк имени 70-летия Победы</code></span>
+  </footer>
+
+  <script>
+    async function loadHealth() {
+      const statusChip = document.getElementById('backend-status');
+      try {
+        const res = await fetch('/api/health');
+        if (!res.ok) throw new Error('bad status');
+        const text = await res.text();
+        if (text.trim() === 'I AM ALIVE') {
+          statusChip.textContent = 'online';
+          statusChip.classList.remove('chip-offline');
+          statusChip.classList.add('chip-online');
+        } else {
+          statusChip.textContent = 'degraded';
+          statusChip.classList.remove('chip-online');
+          statusChip.classList.add('chip-offline');
+        }
+      } catch (e) {
+        statusChip.textContent = 'offline';
+        statusChip.classList.remove('chip-online');
+        statusChip.classList.add('chip-offline');
+      }
+    }
+
+    async function loadLatestNote() {
+      const container = document.getElementById('latest-note-body');
+      container.classList.add('loading');
+      container.innerHTML = '<p>Загружаем свежий спуск…</p>';
+      try {
+        const res = await fetch('/api/notes/latest');
+        if (!res.ok) throw new Error('bad status');
+        const data = await res.json();
+        if (!data || !data.title) {
+          container.innerHTML = '<p>Записей пока нет. Пора устроить первый спуск.</p>';
+        } else {
+          const created = new Date(data.created_at);
+          container.classList.remove('loading');
+          container.innerHTML = `
+            <div class="note-meta">
+              <span class="note-category note-${data.category}">${data.category}</span>
+              <span class="note-date">${created.toLocaleString('ru-RU')}</span>
+            </div>
+            <h3 class="note-title">${data.title}</h3>
+            <p class="note-content">${data.content}</p>
+          `;
+        }
+      } catch (e) {
+        container.innerHTML = '<p>Не удалось загрузить заметку. Проверь backend.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHealth();
+      loadLatestNote();
+    });
+  </script>
+</body>
+</html>
+

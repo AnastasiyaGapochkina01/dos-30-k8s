@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-db
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount.db }}
+  selector:
+    matchLabels:
+      part: db
+  template:
+    metadata:
+      labels:
+        part: db
+        {{- include "blog.labesl" . | nindent 8 }}
+    spec:
+      containers:
+        - name: db
+          image: "{{ .Values.image.db.repository }}:{{ .Values.image.db.tag }}"
+          ports:
+            - containerPort: {{ .Values.db.port }}
+          envFrom:
+          - secretRef:
+              name: db-secret

@@ -1,0 +1,32 @@
+namespace: blog
+
+image:
+  repository: anestesia01/counter
+  backend:
+    tag: backend-ae90d3de
+  frontend:
+    tag: frontend-ae90d3de
+  db:
+    repository: mariadb
+    tag: "11.4"
+
+replicaCount:
+  backend: 2
+  frontend: 1
+  db: 1
+
+services:
+  backend:
+    port: 8000
+  frontend:
+    port: 80
+  db:
+    port: 3306
+
+db:
+  port: 3306
+  rootPassword: rootpass
+  dbName: downhill_diary
+  dbUser: downhill_user
+  userPass: downhill_pass
+    

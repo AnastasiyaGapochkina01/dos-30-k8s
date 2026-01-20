@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-db
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      part: db
+  template:
+    metadata:
+      labels:
+        part: db
+    spec:
+      containers:
+        - name: db
+          image: mariadb:11.4
+          ports:
+            - containerPort: 3306
+          envFrom:
+          - secretRef:
+              name: db-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  namespace: app
+spec:
+  selector:
+    part: db
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP  

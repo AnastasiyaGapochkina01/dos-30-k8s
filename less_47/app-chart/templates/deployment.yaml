@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-backend
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      part: backend
+  template:
+    metadata:
+      labels:
+        part: backend
+        {{- include "blog.labesl" . | nindent 8 }}
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.backend.tag }}"
+          ports:
+            - containerPort: 8000
+          env:
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: MYSQL_DATABASE
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: MYSQL_PASSWORD
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: MYSQL_USER
+          - name: DB_HOST
+            value: "db-svc"
+          - name: DB_PORT
+            value: "3306"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-frontend
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount.frontend }}
+  selector:
+    matchLabels:
+      part: frontend
+  template:
+    metadata:
+      labels:
+        part: frontend
+        {{- include "blog.labesl" . | nindent 8 }}
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.frontend.tag }}"
+          ports:
+            - containerPort: 80
